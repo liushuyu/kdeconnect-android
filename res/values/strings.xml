@@ -184,4 +184,8 @@
 
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="perm_ex_stg_rationale">KDE Connect needs the permission to save the received file to external storage.</string>
+    <string name="perm_ex_stg_denied">KDE Connect will not be able to receive files now due to lack of permissions!</string>
+    <string name="perm_firstrun_hint">KDE Connect needs these permissions to let you manage phone calls, text messages, and contacts on your computer</string>
+    <string name="perm_firstrun_denied">KDE Connect will disable relevant plugins due to lack of permissions</string>
 </resources>

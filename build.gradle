@@ -3,19 +3,20 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.3.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
     }
 }
 
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion '22.0.1'
+    compileSdkVersion 23
+    buildToolsVersion '23.0.3'
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 22
+        targetSdkVersion 23
     }
+    useLibrary 'org.apache.http.legacy'
 	sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -49,19 +50,19 @@ dependencies {
     repositories {
         mavenCentral()
     }
-    compile 'com.android.support:support-v4:22.2.1'
-    compile 'com.android.support:appcompat-v7:22.2.1'
-    compile 'com.android.support:design:22.2.1'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:design:23.4.0'
 
-    compile 'org.apache.mina:mina-core:2.0.9'
+    compile 'org.apache.mina:mina-core:2.0.13'
     compile 'org.apache.sshd:sshd-core:0.8.0'
-    compile 'org.bouncycastle:bcprov-jdk16:1.46'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.54'
 
     androidTestCompile 'org.mockito:mockito-core:1.10.19'
 
     // Because mockito has some problems with dex environment
-    androidTestCompile 'com.google.dexmaker:dexmaker:1.1'
-    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.1'
+    androidTestCompile 'com.google.dexmaker:dexmaker:1.2'
+    androidTestCompile 'com.google.dexmaker:dexmaker-mockito:1.2'
 
     //compile fileTree(dir: 'libs', include: '*.jar')
 }

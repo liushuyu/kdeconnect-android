@@ -1,15 +1,20 @@
 package org.kde.kdeconnect.UserInterface;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -23,14 +28,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import org.kde.kdeconnect.BackgroundService;
 import org.kde.kdeconnect.Device;
 import org.kde.kdeconnect.Helpers.DeviceHelper;
 import org.kde.kdeconnect_tp.R;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 public class MaterialActivity extends AppCompatActivity {
 
@@ -40,7 +47,6 @@ public class MaterialActivity extends AppCompatActivity {
 
     private NavigationView mNavigationView;
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
 
     private String mCurrentDevice;
 
@@ -52,15 +58,17 @@ public class MaterialActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        preferences = getSharedPreferences("basic_prefs", Context.MODE_PRIVATE);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mNavigationView = (NavigationView) findViewById(R.id.navigation_drawer);
-
+        assert mNavigationView != null;
+        View mHeaderView = mNavigationView.getHeaderView(0);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, /* host Activity */
                 mDrawerLayout, /* DrawerLayout object */
                 R.string.open, /* "open drawer" description */
                 R.string.close /* "close drawer" description */
@@ -68,14 +76,32 @@ public class MaterialActivity extends AppCompatActivity {
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerToggle.syncState();
 
         String deviceName = DeviceHelper.getDeviceName(this);
-        TextView nameView = (TextView) mDrawerLayout.findViewById(R.id.device_name);
+        TextView nameView = (TextView) mHeaderView.findViewById(R.id.device_name);
+        assert nameView != null;
         nameView.setText(deviceName);
+
+        if (preferences.getBoolean("firstrun",true)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                firstRunRequestPermissions();
+            }
+
+            preferences.edit().putBoolean("firstrun",false).apply();
+        }else {
+            final int REQUEST_CODE = 100;  //Just a flag to distinguish between different permission requests
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Toast.makeText(MaterialActivity.this, R.string.perm_ex_stg_rationale, Toast.LENGTH_LONG).show();
+                }
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE);
+            }
+        }
 
         View.OnClickListener renameListener = new View.OnClickListener() {
             @Override
@@ -83,8 +109,8 @@ public class MaterialActivity extends AppCompatActivity {
                 renameDevice();
             }
         };
-        mDrawerLayout.findViewById(R.id.kdeconnect_label).setOnClickListener(renameListener);
-        mDrawerLayout.findViewById(R.id.device_name).setOnClickListener(renameListener);
+        mHeaderView.findViewById(R.id.kdeconnect_label).setOnClickListener(renameListener);
+        mHeaderView.findViewById(R.id.device_name).setOnClickListener(renameListener);
 
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -113,6 +139,51 @@ public class MaterialActivity extends AppCompatActivity {
             savedDevice = preferences.getString(STATE_SELECTED_DEVICE, null);
         }
         onDeviceSelected(savedDevice);
+
+    }
+
+
+    private void firstRunRequestPermissions(){
+        int FIRST_RUN_PERMISSIONS = 150;
+        List<String> requiredPermissions = new ArrayList<String>();
+        requiredPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        requiredPermissions.add(Manifest.permission.READ_CONTACTS);
+        requiredPermissions.add(Manifest.permission.READ_PHONE_STATE);
+        requiredPermissions.add(Manifest.permission.SEND_SMS);
+        List<String> lackedPermissions = new ArrayList<String>();
+        groupCheckPermissions(requiredPermissions, lackedPermissions);
+        if (lackedPermissions.isEmpty()) { return ;}
+        Toast.makeText(MaterialActivity.this, R.string.perm_firstrun_hint, Toast.LENGTH_LONG).show();
+        ActivityCompat.requestPermissions(this, lackedPermissions.toArray(new String[lackedPermissions.size()]), FIRST_RUN_PERMISSIONS);
+    }
+
+    public void groupCheckPermissions(List<String> requiredPermissions, List<String> lackedPermissions){
+        for (int i = 0; i < requiredPermissions.size(); i++) {
+            if (ContextCompat.checkSelfPermission(this,requiredPermissions.get(i)) != PackageManager.PERMISSION_GRANTED){
+                lackedPermissions.add(requiredPermissions.get(i));
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 100:
+                if(grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MaterialActivity.this, R.string.perm_ex_stg_denied, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 150:
+                for (int i = 0; i < grantResults.length; i++) {
+                    if (grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                        Toast.makeText(MaterialActivity.this, R.string.perm_firstrun_denied, Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        }
 
     }
 

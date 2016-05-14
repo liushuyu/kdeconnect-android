@@ -23,7 +23,7 @@ package org.kde.kdeconnect.Plugins.NotificationsPlugin;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -35,7 +35,7 @@ import org.kde.kdeconnect_tp.R;
 
 import java.util.List;
 
-public class NotificationFilterActivity extends ActionBarActivity {
+public class NotificationFilterActivity extends AppCompatActivity {
 
     private AppDatabase appDatabase;
 
