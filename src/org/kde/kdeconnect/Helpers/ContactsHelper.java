@@ -82,6 +82,9 @@ public class ContactsHelper {
     }
 
     public static String photoId64Encoded(Context context, String photoId) {
+        if (photoId == null) {
+            return "";
+        }
         Uri photoUri = Uri.parse(photoId);
         Uri displayPhotoUri = Uri.withAppendedPath(photoUri, ContactsContract.Contacts.Photo.DISPLAY_PHOTO);
 
@@ -100,7 +103,7 @@ public class ContactsHelper {
             return encodedPhoto.toString();
         } catch (Exception ex) {
             Log.e("ContactsHelper", ex.toString());
-            return new String();
+            return "";
         }
     }
 }
