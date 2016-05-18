@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                              android:id="@+id/refresh_list_layout"
+                                              android:layout_width="match_parent"
+                                              android:layout_height="match_parent">
+    <ListView
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="16dip"
+        android:paddingStart="16dip"
+        android:paddingRight="16dip"
+        android:addStatesFromChildren="true"
+        tools:context=".MainActivity"
+        android:orientation="vertical"
+        android:id="@+id/listView1">
+    </ListView>
+
+</android.support.v4.widget.SwipeRefreshLayout>

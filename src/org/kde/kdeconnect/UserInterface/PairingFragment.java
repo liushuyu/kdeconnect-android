@@ -25,7 +25,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+//import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -52,20 +52,21 @@ import java.util.Collection;
 
 public class PairingFragment extends Fragment implements PairingDeviceItem.Callback {
 
-    private static final int RESULT_PAIRING_SUCCESFUL = Activity.RESULT_FIRST_USER;
+    private static final int RESULT_PAIRING_SUCCESSFUL = Activity.RESULT_FIRST_USER;
 
     private View rootView;
+    private View listRootView;
     private MaterialActivity mActivity;
 
     private MenuItem menuProgress;
 
-    boolean listRefreshCalledThisFrame = false;
+    private boolean listRefreshCalledThisFrame = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        //Log.e("PairingFragmen", "OnCreateView");
+        //Log.e("PairingFragment", "OnCreateView");
 
         mActivity.getSupportActionBar().setTitle(R.string.pairing_title);
 
@@ -89,7 +90,7 @@ public class PairingFragment extends Fragment implements PairingDeviceItem.Callb
         mActivity = ((MaterialActivity) getActivity());
     }
 
-    void updateComputerList() {
+    private void updateComputerList() {
         BackgroundService.RunCommand(mActivity, new BackgroundService.InstanceCallback() {
             @Override
             public void onServiceStart(final BackgroundService service) {
@@ -209,7 +210,7 @@ public class PairingFragment extends Fragment implements PairingDeviceItem.Callb
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case RESULT_PAIRING_SUCCESFUL:
+            case RESULT_PAIRING_SUCCESSFUL:
                 if (resultCode == 1) {
                     String deviceId = data.getStringExtra("deviceId");
                     mActivity.onDeviceSelected(deviceId);
@@ -240,7 +241,7 @@ public class PairingFragment extends Fragment implements PairingDeviceItem.Callb
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try { Thread.sleep(1500); } catch (InterruptedException e) { }
+                        try { Thread.sleep(1500); } catch (InterruptedException ignored) { }
                         mActivity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

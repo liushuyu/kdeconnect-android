@@ -13,8 +13,9 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:src="?attr/selectableItemBackgroundBorderless"
         android:text="@string/findmyphone_found"
-        android:textSize="50dp"
+        android:textSize="50sp"
         android:id="@+id/bFindMyPhone"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
